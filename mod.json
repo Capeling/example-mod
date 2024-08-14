@@ -12,7 +12,6 @@
 	"developer": "$MOD_DEVELOPER",
 	"description": "$MOD_DESCRIPTION",
 	"links": {
-		"source": "https://github.com/Capeling/$MOD_NAME",
-		"community": "https://discord.gg/aZGgZ7xKr3"
+		"source": "https://github.com/Capeling/$MOD_NAME"
 	}
 }
