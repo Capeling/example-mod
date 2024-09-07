@@ -23,4 +23,6 @@ add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
 CPMAddPackage("gh:Capeling/cUtils#b2cc555")
 
+target_link_libraries(${PROJECT_NAME} cUtils)
+
 setup_geode_mod(${PROJECT_NAME})
