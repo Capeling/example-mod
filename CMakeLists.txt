@@ -6,12 +6,29 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 project(Template VERSION 1.0.0)
 
-file(GLOB_RECURSE SOURCES
-	src/*.cpp
-    ${OS_SOURCES}
-)
+option(ENABLE_DEBUG "Enable debug" OFF)
 
+if(ENABLE_DEBUG)
+    add_compile_definitions(ENABLE_TESTS=1)
+    add_compile_definitions(DEBUG_ENABLED=1)
+else()
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
+file(GLOB_RECURSE SOURCES src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
+
+target_include_directories(${PROJECT_NAME} PRIVATE src)
+
+if (WIN32)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
+  set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
+# macOS specific settings
+if (APPLE)
+  set_source_files_properties(${MACOS_SOURCES} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+endif()
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
@@ -21,7 +38,7 @@ endif()
 
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
-CPMAddPackage("gh:Capeling/cUtils#b2cc555")
+CPMAddPackage("gh:Capeling/cUtils#aa2ca2c")
 
 target_link_libraries(${PROJECT_NAME} cUtils)
 
