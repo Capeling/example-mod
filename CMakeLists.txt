@@ -10,11 +10,25 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 project(Template VERSION 1.0.0)
 
-# Add all source files inside src (recursively)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
-
-# Set up the mod binary
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
+
+if(DEFINED ENV{GITHUB_ACTIONS})
+# Enable LTO for smaller binaries
+set_property(TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+target_compile_definitions(${PROJECT_NAME} PRIVATE GITHUB_ACTIONS=1)
+message(STATUS "GitHub Actions build detected")
+endif()
+
+target_include_directories(${PROJECT_NAME} PRIVATE src)
+
+if (NOT DEFINED ENV{GITHUB_ACTIONS})
+  target_compile_definitions(
+    ${PROJECT_NAME} PRIVATE
+      $<$<CONFIG:Debug>:DEBUG_BUILD>
+      $<$<CONFIG:RelWithDebInfo>:DEBUG_BUILD>
+  )
+endif()
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
@@ -24,5 +38,4 @@ endif()
 
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
-# Set up dependencies, resources, and link Geode.
 setup_geode_mod(${PROJECT_NAME})
